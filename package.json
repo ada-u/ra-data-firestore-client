@@ -1,7 +1,7 @@
 {
-  "name": "ra-data-firestore-client-naggertooth",
+  "name": "ra-data-firestore",
   "version": "0.1.17",
-  "description": "Firestore Client for react-admin",
+  "description": "Firestore data provider for react-admin",
   "main": "build/index.js",
   "jsnext:main": "es/index.js",
   "module": "es/index.js",
@@ -13,7 +13,7 @@
     "react",
     "firebase",
     "firestore",
-    "rest"
+    "data-provider"
   ],
   "scripts": {
     "build": "npm run build:es5 && npm run build:es6",
@@ -29,11 +29,11 @@
     "reset": "rm -rf node_modules && rm -rf package-lock.json && npm install && npm run init",
     "start": "concurrently --kill-others \"npm run build:watch\" \"npm run app-start\""
   },
-  "author": "Ilya Starokozhov <grachara@gmail.com>",
+  "author": "Yuta Adachi <yuta@adachi.life>",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Naggertooth/ra-data-firestore-client.git"
+    "url": "https://github.com/ada-u/ra-data-firestore-client.git"
   },
   "peerDependencies": {
     "react": "16.5.0",
