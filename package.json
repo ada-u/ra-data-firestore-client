@@ -1,5 +1,5 @@
 {
-  "name": "ra-data-firestore",
+  "name": "ra-data-firestore-client-ada-u",
   "version": "0.1.17",
   "description": "Firestore data provider for react-admin",
   "main": "build/index.js",
@@ -25,7 +25,7 @@
     "enable:es6": "cp -f .babel-es6.json .babelrc",
     "publish": "npm run build",
     "demo": "node scripts/start.js",
-    "init": "npm run build && npm link && npm link ra-data-firestore-client",
+    "init": "npm run build && npm link && npm link ra-data-firestore-client-ada-u",
     "reset": "rm -rf node_modules && rm -rf package-lock.json && npm install && npm run init",
     "start": "concurrently --kill-others \"npm run build:watch\" \"npm run app-start\""
   },
