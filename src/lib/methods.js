@@ -55,38 +55,49 @@ const getImageSize = file => {
 };
 
 const uploadFile = async (file, fieldName, id, idx, resourceName, resourcePath) => {
-  const rawFile = file.rawFile;
+  if (file) {
+    const rawFile = file.rawFile;
+    if (rawFile && rawFile.name) {
+      const ext = rawFile.name.split('.').pop();
+      const path = `${resourcePath}/${id}/${fieldName}/${idx}.${ext}`;
+      console.log('upload: path', path);
+      const ref = firebase
+        .storage()
+        .ref()
+        .child(path);
 
-  if (file && rawFile && rawFile.name) {
-    const ext = rawFile.name.split('.').pop();
-    const path = `${resourcePath}/${id}/${fieldName}/${idx}.${ext}`;
-    console.log('upload: path', path);
-    const ref = firebase
-      .storage()
-      .ref()
-      .child(path);
-    const snapshot = await ref.put(rawFile);
+      const url = await ref
+        .getMetadata()
+        .then(metadata => {
+          if (metadata && metadata.size === rawFile.size) {
+            return ref.getDownloadURL();
+          } else {
+            return ref.put(rawFile).snapshot.ref.getDownloadURL();
+          }
+        })
+        .catch(() => {
+          return ref.put(rawFile).snapshot.ref.getDownloadURL();
+        });
 
-    const result = {};
-    result.uploadedAt = new Date();
+      const result = {};
+      result.uploadedAt = new Date();
 
-    const downloadURL = await snapshot.ref.getDownloadURL();
-
-    console.log('upload: download url', downloadURL);
-    result.src = downloadURL.split('?').shift() + '?alt=media';
-    result.type = rawFile.type;
-    if (rawFile.type.indexOf('image/') === 0) {
-      try {
-        const imageSize = await getImageSize(file);
-        result.width = imageSize.width;
-        result.height = imageSize.height;
-      } catch (e) {
-        console.error(`Failed to get image dimensions`);
+      console.log('upload: download url', url);
+      result.src = url.split('?').shift() + '?alt=media';
+      result.type = rawFile.type;
+      if (rawFile.type.indexOf('image/') === 0) {
+        try {
+          const imageSize = await getImageSize(file);
+          result.width = imageSize.width;
+          result.height = imageSize.height;
+        } catch (e) {
+          console.error(`Failed to get image dimensions`);
+        }
       }
+      return result;
     }
-    return result;
   }
-  return false;
+  return {};
 };
 
 const upload = async (fieldName, submitedData, id, resourceName, resourcePath) => {
