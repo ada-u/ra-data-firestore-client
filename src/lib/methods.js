@@ -54,26 +54,32 @@ const getImageSize = file => {
   });
 };
 
-const upload = async (fieldName, submitedData, id, resourceName, resourcePath) => {
-  const file = submitedData[fieldName] && submitedData[fieldName][0];
+const uploadFile = async (file, fieldName, id, idx, resourceName, resourcePath) => {
   const rawFile = file.rawFile;
 
-  const result = {};
   if (file && rawFile && rawFile.name) {
+    const ext = rawFile.name.split('.').pop();
+    const path = `${resourcePath}/${id}/${fieldName}/${idx}.${ext}`;
+    console.log('upload: path', path);
     const ref = firebase
       .storage()
       .ref()
-      .child(`${resourcePath}/${id}/${fieldName}`);
+      .child(path);
     const snapshot = await ref.put(rawFile);
-    result[fieldName] = [{}];
-    result[fieldName][0].uploadedAt = new Date();
-    result[fieldName][0].src = snapshot.downloadURL.split('?').shift() + '?alt=media';
-    result[fieldName][0].type = rawFile.type;
+
+    const result = {};
+    result.uploadedAt = new Date();
+
+    const downloadURL = await snapshot.ref.getDownloadURL();
+
+    console.log('upload: download url', downloadURL);
+    result.src = downloadURL.split('?').shift() + '?alt=media';
+    result.type = rawFile.type;
     if (rawFile.type.indexOf('image/') === 0) {
       try {
         const imageSize = await getImageSize(file);
-        result[fieldName][0].width = imageSize.width;
-        result[fieldName][0].height = imageSize.height;
+        result.width = imageSize.width;
+        result.height = imageSize.height;
       } catch (e) {
         console.error(`Failed to get image dimensions`);
       }
@@ -81,6 +87,21 @@ const upload = async (fieldName, submitedData, id, resourceName, resourcePath) =
     return result;
   }
   return false;
+};
+
+const upload = async (fieldName, submitedData, id, resourceName, resourcePath) => {
+  const result = {};
+  if (submitedData[fieldName] && submitedData[fieldName][0]) {
+    result[fieldName] = [{}];
+    result[fieldName] = await Promise.all(
+      submitedData[fieldName].map(async (file, idx) => {
+        const res = await uploadFile(file, fieldName, id, idx, resourceName, resourcePath);
+        return res;
+      })
+    );
+    console.log(result);
+  }
+  return result;
 };
 
 const save = async (
@@ -286,6 +307,5 @@ export default {
   getList,
   getMany,
   getManyReference,
-  addUploadFeature,
-  convertFileToBase64
+  addUploadFeature
 };
