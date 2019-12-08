@@ -31,7 +31,13 @@ export const UserCreate = props => (
       <TextInput source="name" />
       <TextInput source="username" />
       <TextInput source="email" />
-      <ImageInput source="image" label="Related Image" accept="image/*" multiple>
+      <ImageInput source="picture1" label="Related Image" accept="image/*">
+        <ImageField source="src" title="title" />
+      </ImageInput>
+      <ImageInput source="picture2" label="Related Image" accept="image/*">
+        <ImageField source="src" title="title" />
+      </ImageInput>
+      <ImageInput source="picture3" label="Related Image" accept="image/*">
         <ImageField source="src" title="title" />
       </ImageInput>
     </SimpleForm>
@@ -45,7 +51,13 @@ export const UserEdit = props => (
       <TextInput source="name" />
       <TextInput source="username" />
       <TextInput source="email" />
-      <ImageInput source="image" label="Related Image" accept="image/*" multiple>
+      <ImageInput source="picture1" label="Related Image" accept="image/*">
+        <ImageField source="src" title="title" />
+      </ImageInput>
+      <ImageInput source="picture2" label="Related Image" accept="image/*">
+        <ImageField source="src" title="title" />
+      </ImageInput>
+      <ImageInput source="picture3" label="Related Image" accept="image/*">
         <ImageField source="src" title="title" />
       </ImageInput>
     </SimpleForm>
