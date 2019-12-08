@@ -55,30 +55,34 @@ const getImageSize = file => {
 };
 
 const upload = async (fieldName, submitedData, id, resourceName, resourcePath) => {
-  const file = submitedData[fieldName] && submitedData[fieldName][0];
-  const rawFile = file.rawFile;
-
+  const file = submitedData[fieldName];
   const result = {};
-  if (file && rawFile && rawFile.name) {
-    const ref = firebase
-      .storage()
-      .ref()
-      .child(`${resourcePath}/${id}/${fieldName}`);
-    const snapshot = await ref.put(rawFile);
-    result[fieldName] = [{}];
-    result[fieldName][0].uploadedAt = new Date();
-    result[fieldName][0].src = snapshot.downloadURL.split('?').shift() + '?alt=media';
-    result[fieldName][0].type = rawFile.type;
-    if (rawFile.type.indexOf('image/') === 0) {
-      try {
-        const imageSize = await getImageSize(file);
-        result[fieldName][0].width = imageSize.width;
-        result[fieldName][0].height = imageSize.height;
-      } catch (e) {
-        console.error(`Failed to get image dimensions`);
+  if (file) {
+    const rawFile = file.rawFile;
+    if (rawFile && rawFile.name) {
+      const path = `${resourcePath}/${id}/${fieldName}`;
+      const ref = firebase
+        .storage()
+        .ref()
+        .child(path);
+      const snapshot = await ref.put(rawFile);
+      result[fieldName] = [{}];
+      result[fieldName][0].uploadedAt = new Date();
+
+      const downloadURL = await snapshot.ref.getDownloadURL();
+      result[fieldName][0].src = downloadURL.split('?').shift() + '?alt=media';
+      result[fieldName][0].type = rawFile.type;
+      if (rawFile.type.indexOf('image/') === 0) {
+        try {
+          const imageSize = await getImageSize(file);
+          result[fieldName][0].width = imageSize.width;
+          result[fieldName][0].height = imageSize.height;
+        } catch (e) {
+          console.error(`Failed to get image dimensions`);
+        }
       }
+      return result;
     }
-    return result;
   }
   return false;
 };
@@ -286,6 +290,5 @@ export default {
   getList,
   getMany,
   getManyReference,
-  addUploadFeature,
-  convertFileToBase64
+  addUploadFeature
 };
