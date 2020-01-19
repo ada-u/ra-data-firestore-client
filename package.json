@@ -1,6 +1,6 @@
 {
   "name": "ra-data-firestore-client-ada-u",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "Firestore data provider for react-admin",
   "main": "build/index.js",
   "jsnext:main": "es/index.js",
