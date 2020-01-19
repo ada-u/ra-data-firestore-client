@@ -160,7 +160,7 @@ const getOne = async (params, resourceName, resourceData) => {
  * filter: { author_id: 12 }
  */
 const compare = (item, key, filterKey) => {
-  const comparison = filterKey.includes('<') || filterKey.includes('>');
+  const comparison = typeof filterKey === 'string' ? filterKey.includes('<') || filterKey.includes('>') : false;
   let comparisonValue = 0;
   let comparisonChecker = comparison ? (filterKey.includes('<') ? '<' : '>') : false;
   if (comparison) {
@@ -174,7 +174,11 @@ const compare = (item, key, filterKey) => {
     return item[key] < comparisonValue;
   } else {
     // eslint-disable-next-line eqeqeq
-    return item[key].includes(filterKey);
+    if (typeof filterKey === 'string') {
+      return item[key].includes(filterKey);
+    } else {
+      return item[key] === filterKey;
+    }
   }
 };
 
