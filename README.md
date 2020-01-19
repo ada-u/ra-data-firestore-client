@@ -35,4 +35,10 @@ For AuthProvider, don't forget to add the user UID to your Firestore DB under /u
 }
 ```
 
+```
+$ npm version patch
+$ git push origin tags/v0.1.22
+$ npm publish ./
+```
+
 ## ra-data-firestore-client also supports `base64` image uploading. 
