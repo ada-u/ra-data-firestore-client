@@ -159,6 +159,37 @@ const getOne = async (params, resourceName, resourceData) => {
  * sort: { field: 'title', order: 'ASC' },
  * filter: { author_id: 12 }
  */
+const compare = (item, key, filterKey) => {
+  const comparison = filterKey.includes('<') || filterKey.includes('>');
+  let comparisonValue = 0;
+  let comparisonChecker = comparison ? (filterKey.includes('<') ? '<' : '>') : false;
+  if (comparison) {
+    comparisonValue = !isNaN(Number(filterKey.slice(1))) ? Number(filterKey.slice(1)) : 0;
+  }
+  // eslint-disable-next-line eqeqeq
+  if (comparisonChecker == '>') {
+    return item[key] > comparisonValue;
+    // eslint-disable-next-line eqeqeq
+  } else if (comparisonChecker == '<') {
+    return item[key] < comparisonValue;
+  } else {
+    // eslint-disable-next-line eqeqeq
+    return item[key].includes(filterKey);
+  }
+};
+
+const itemFilter = (item, params) => {
+  let meetsFilters = true;
+  for (const key of Object.keys(params.filter)) {
+    const filterKey = params.filter[key];
+    if (typeof filterKey === 'object') {
+      meetsFilters = itemFilter(item[key], { filter: filterKey });
+    } else {
+      meetsFilters = compare(item, key, filterKey);
+    }
+  }
+  return meetsFilters;
+};
 
 const getList = async (params, resourceName, resourceData) => {
   if (params.pagination) {
@@ -183,26 +214,7 @@ const getList = async (params, resourceName, resourceData) => {
     }
 
     if (params.filter) {
-      values = values.filter(item => {
-        let meetsFilters = true;
-        for (const key of Object.keys(params.filter)) {
-          const comparison = params.filter[key].includes('<') || params.filter[key].includes('>');
-          let comparisonValue = 0;
-          let comparisonChecker = comparison ? (params.filter[key].includes('<') ? '<' : '>') : false;
-          if (comparison) {
-            comparisonValue = !isNaN(Number(params.filter[key].slice(1))) ? Number(params.filter[key].slice(1)) : 0;
-          }
-
-          if (comparisonChecker === '>') {
-            meetsFilters = item[key] > comparisonValue;
-          } else if (comparisonChecker === '<') {
-            meetsFilters = item[key] < comparisonValue;
-          } else {
-            meetsFilters = item[key] === params.filter[key];
-          }
-        }
-        return meetsFilters;
-      });
+      values = values.filter(item => itemFilter(item, params));
     }
 
     if (params.sort) {
